@@ -20,13 +20,6 @@ var zAxis = 2;
 var axis = 0;
 var theta = [ 0, 0, 0 ];
 
-var boxScale = 1;
-var xBoxPoints = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3]
-var yBoxPoints = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,
-                 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
-
-var zBoxPoints = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3];
-
 var movement = false;     // Do we rotate?
 var spinX = 0;
 var spinY = 0;
@@ -71,7 +64,7 @@ window.onload = function init()
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
 
-    thetaLoc = gl.getUniformLocation(program, "rotation"); 
+    thetaLoc = gl.getUniformLocation(program, "theta"); 
     
     //event listeners for mouse
     canvas.addEventListener("mousedown", function(e){
@@ -110,20 +103,15 @@ function colorCube()
 function quad(a, b, c, d) 
 {
     var vertices = [
-        vec3( -0.3, -0.9,  0.3 ),
-        vec3( -0.3,  0.9,  0.3 ),
-        vec3(  0.3,  0.9,  0.3 ),
-        vec3(  0.3, -0.9,  0.3 ),
-        vec3( -0.3, -0.9, -0.3 ),
-        vec3( -0.3,  0.9, -0.3 ),
-        vec3(  0.3,  0.9, -0.3 ),
-        vec3(  0.3, -0.9, -0.3 )
+        vec3( -0.5, -0.5,  0.5 ),
+        vec3( -0.5,  0.5,  0.5 ),
+        vec3(  0.5,  0.5,  0.5 ),
+        vec3(  0.5, -0.5,  0.5 ),
+        vec3( -0.5, -0.5, -0.5 ),
+        vec3( -0.5,  0.5, -0.5 ),
+        vec3(  0.5,  0.5, -0.5 ),
+        vec3(  0.5, -0.5, -0.5 )
     ];
-
-    var testLine = [
-        vec3(-0.3,-0.9, 0.0),
-        vec3(0.3, -0.9, 0.0)
-    ]
 
     var vertexColors = [
         [ 0.0, 0.0, 0.0, 1.0 ],  // black
@@ -133,8 +121,7 @@ function quad(a, b, c, d)
         [ 0.0, 0.0, 1.0, 1.0 ],  // blue
         [ 1.0, 0.0, 1.0, 1.0 ],  // magenta
         [ 0.0, 1.0, 1.0, 1.0 ],  // cyan
-        [ 1.0, 1.0, 1.0, 1.0 ],   // white
-        [0.32, 0.32, 0.32, 0.5]
+        [ 1.0, 1.0, 1.0, 1.0 ]   // white
     ];
 
     // We need to parition the quad into two triangles in order for
@@ -150,35 +137,22 @@ function quad(a, b, c, d)
         //colors.push( vertexColors[indices[i]] );
     
         // for solid colored faces use 
-        console.log(c)
-        colors.push(vertexColors[8]);
+        colors.push(vertexColors[a]);
         
     }
-
-    console.log(points);
 }
 
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-
-    var ctm = mat4();
-
-    ctm = mult(ctm, rotateX(spinX));
-    ctm = mult(ctm, rotateY(spinY));
-
-    ctm = mult( ctm, scalem( boxScale, boxScale, boxScale ) );
-
-
-    gl.disable( gl.DEPTH_TEST );
-    gl.uniformMatrix4fv(thetaLoc, false, flatten(ctm));
-
-
+    if( movement ) {
+        theta[0] = spinX;
+        theta[1] = spinY;
+    }
+    gl.uniform3fv(thetaLoc, theta);
 
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-    
-
 
     requestAnimFrame( render );
 }
