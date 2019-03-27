@@ -12,6 +12,9 @@ var NumVertices  = 36;
 
 var lineBuffer;
 
+var vBuffer;
+var floorBuffer;
+
 var vPosition;
 
 var points = [];
@@ -21,9 +24,17 @@ var locColor;
 
 var vColor;
 
+var cFloorBuffer;
+
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
+
+var tester = false;
+
+
+var stack = [];
+var stackColors = [];
 
 var axis = 0;
 var theta = [ 0, 0, 0 ];
@@ -33,14 +44,20 @@ var xBoxPoints = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3]
 var yBoxPoints = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,
                  0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
 
+
+
+
 var zBoxPoints = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3];
 
 
-var yBlockPosition = 0.9;
+var yBlockPosition = 0.90;
 
 var yBlockFalldown = -0.1;
 
 var yBlockTranslator = 0.0;
+
+
+
 
 
 
@@ -82,22 +99,25 @@ window.onload = function init()
     gl.useProgram( program );
 
     
+    
     var cBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+
 
     vColor = gl.getAttribLocation( program, "vColor" );
     gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vColor );
 
-    lineBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, lineBuffer);
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(testLine), gl.STATIC_DRAW);
     
-    var vBuffer = gl.createBuffer();
+    
+
+
+    vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
 
+   
 
 
     vPosition = gl.getAttribLocation( program, "vPosition" );
@@ -139,6 +159,9 @@ window.onload = function init()
 
 function colorCube()
 {
+
+    console.log("now");
+
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
     quad( 3, 0, 4, 7 );
@@ -161,27 +184,27 @@ function colorCube()
 function quad(a, b, c, d) 
 {
     var vertices = [
-        vec3( -0.3, -0.9,  0.3 ),
-        vec3( -0.3,  0.9,  0.3 ),
-        vec3(  0.3,  0.9,  0.3 ),
-        vec3(  0.3, -0.9,  0.3 ),
-        vec3( -0.3, -0.9, -0.3 ),
-        vec3( -0.3,  0.9, -0.3 ),
-        vec3(  0.3,  0.9, -0.3 ),
-        vec3(  0.3, -0.9, -0.3 ),
+        vec3( -0.3, -1.0,  0.3 ),
+        vec3( -0.3,  1.0,  0.3 ),
+        vec3(  0.3,  1.0,  0.3 ),
+        vec3(  0.3, -1.0,  0.3 ),
+        vec3( -0.3, -1.0, -0.3 ),
+        vec3( -0.3,  1.0, -0.3 ),
+        vec3(  0.3,  1.0, -0.3 ),
+        vec3(  0.3, -1.0, -0.3 ),
 
 
 
         //blocks
 
-        vec3( -0.3,  0.8,  -0.2 ),
         vec3( -0.3,  0.9,  -0.2 ),
+        vec3( -0.3,  1.0,  -0.2 ),
+        vec3(  0.0,  1.0,  -0.2 ),
         vec3(  0.0,  0.9,  -0.2 ),
-        vec3(  0.0,  0.8,  -0.2 ),
-        vec3( -0.3,  0.8,  -0.3 ),
-        vec3( -0.3,  0.9, -0.3 ),
-        vec3(  0.0,  0.9, -0.3 ),
-        vec3(  0.0,  0.8, -0.3 )
+        vec3( -0.3,  0.9,  -0.3 ),
+        vec3( -0.3,  1.0, -0.3 ),
+        vec3(  0.0,  1.0, -0.3 ),
+        vec3(  0.0,  0.9, -0.3 )
     ];
 
 
@@ -230,9 +253,12 @@ function quad(a, b, c, d)
 }
 
 
+
+
+
 var counter = 0;
 
-var maxCounter = 50;
+var maxCounter = 20;
 
 
 function render()
@@ -243,7 +269,6 @@ function render()
 
     
     
-
     var ctm = lookAt( vec3(1.2, 1.0, 2.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0) );
 
     ctm = mult(ctm, rotateX(spinX));
@@ -256,15 +281,40 @@ function render()
     gl.uniformMatrix4fv(thetaLoc, false, flatten(ctm));
 
 
-
+    
     gl.drawArrays( gl.TRIANGLES, 0, 36);
+
+
+    
+
+
 
 
     gl.enable( gl.DEPTH_TEST);
     if(counter >= maxCounter ){
         counter = 0;
-        ctm = mult( ctm, translate( 0.0, yBlockTranslator -= 0.1, 0.0 ) );
+        yBlockTranslator = yBlockTranslator - 0.1;
+        ctm = mult( ctm, translate( 0.0, yBlockTranslator, 0.0 ) );
+        if(yBlockTranslator <= -2.0){
+            tester = true;
+            var ctemp = colors.slice(36,72);
+            var ptemp = points.slice(36,72);
+            console.log("ctemp", ctemp);
+            console.log("ptemp",ptemp);
+
+
+            for(var i = 0; i<ptemp.length; i++){
+                points.push(ptemp[i]);
+                colors.push(ctemp[i]);
+            }
+
+            console.log("points", points);
+            console.log("colors",colors);
+            yBlockTranslator = 0.0;
+
+        }
         gl.uniformMatrix4fv(thetaLoc, false, flatten(ctm));
+        gl.drawArrays( gl.TRIANGLES, 36, 36);
     }
     else{
         counter += 1;
@@ -273,6 +323,16 @@ function render()
 
         gl.drawArrays( gl.TRIANGLES, 36, 36);
     }
+    
+    if(tester){
+        
+        gl.drawArrays(gl.TRIANGLES, 72, 36 );
+    }
+
+
+
+    
+
 
 
 
