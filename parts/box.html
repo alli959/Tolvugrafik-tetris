@@ -2,25 +2,23 @@
 
 <script id="vertex-shader" type="x-shader/x-vertex">
 
-attribute vec4 vPosition;
+attribute  vec4 vPosition;
 attribute vec4 vColor;
-varying vec4 fColor;
 
-uniform mat4 rotation;
 uniform mat4 projection;
+uniform mat4 modelview;
 
-void main()
+void main() 
 {
-    fColor = vColor;
-    gl_Position = projection * rotation * vPosition;
-}
+    gl_Position = projection * modelview * vPosition;
+} 
 </script>
 
 <script id="fragment-shader" type="x-shader/x-fragment">
 
 precision mediump float;
-
-varying vec4 fColor;
+   
+uniform vec4 fColor;
 
 void
 main()
@@ -32,13 +30,13 @@ main()
 <script type="text/javascript" src="../Common/webgl-utils.js"></script>
 <script type="text/javascript" src="../Common/initShaders.js"></script>
 <script type="text/javascript" src="../Common/MV.js"></script>
-<script type="text/javascript" src="tetris.js"></script>
+<script type="text/javascript" src="box.js"></script>
 
 <body>
-<canvas id="gl-canvas" width="512" height="512">
+<canvas id="gl-canvas" width="500" height="500">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
-
+   
 <br/>
 
 </body>
