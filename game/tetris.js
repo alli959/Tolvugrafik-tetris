@@ -58,12 +58,6 @@ var yBlockFalldown = -0.1;
 
 var yBlockTranslator = 0.0;
 
-
-
-
-
-
-
 var movement = false;     // Do we rotate?
 var spinX = 0;
 var spinY = 0;
@@ -370,19 +364,9 @@ function render()
         gl.drawArrays( gl.TRIANGLES, 64, 36);
     }
 
+    ctm = mult( ctm, translate( 0.0, 0.1, 0.0 ) );
+    gl.uniformMatrix4fv(thetaLoc, false, flatten(ctm));
 
-
-
-
-
-    
-
-
-
-
-
-
-    
 
 
 /*
@@ -390,13 +374,6 @@ function render()
     gl.vertexAttribPointer( vPosition, 2, gl.FLOAT, false, 0, 0 );
     gl.uniform4fv(vColor, flatten(vec4(0.0, 0.0, 0.0, 1.0)))
     gl.drawArrays(gl.TRIANGLE_STRIPS, NumVertices, 2);*/
-    
-
-
-
-
-    
-
 
     requestAnimFrame( render );
 }
