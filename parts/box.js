@@ -97,13 +97,14 @@ window.onload = function init()
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    colorCube()
+    
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
  
     gl.enable(gl.DEPTH_TEST);
- 
+    
+    colorCube()
     //
     //  Load shaders and initialize attribute buffers
     //
@@ -117,6 +118,7 @@ window.onload = function init()
     vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
+
 
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
@@ -240,7 +242,6 @@ function quad(a, b, c, d)
     }
 
 
-    console.log(points);
 
 
 }
