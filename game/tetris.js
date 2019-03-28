@@ -10,6 +10,8 @@ var gl;
 
 var NumVertices  = 36;
 
+var drawValue = 8;
+
 var lineBuffer;
 
 var vBuffer;
@@ -41,8 +43,8 @@ var theta = [ 0, 0, 0 ];
 
 var boxScale = 2;
 var xBoxPoints = [-0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3]
-var yBoxPoints = [-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,
-                 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
+var yBoxPoints = [-1,-0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0,
+                 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
 
 
 
@@ -63,6 +65,36 @@ var origX;
 var origY;
 
 var thetaLoc;
+
+
+
+
+
+
+
+var vertices = [
+    vec3( -0.3, -1.0,  0.3 ),
+    vec3( -0.3,  1.0,  0.3 ),
+    vec3(  0.3,  1.0,  0.3 ),
+    vec3(  0.3, -1.0,  0.3 ),
+    vec3( -0.3, -1.0, -0.3 ),
+    vec3( -0.3,  1.0, -0.3 ),
+    vec3(  0.3,  1.0, -0.3 ),
+    vec3(  0.3, -1.0, -0.3 ),
+
+
+
+    //blocks
+
+    vec3( -0.3,  0.9,  -0.2 ),
+    vec3( -0.3,  1.0,  -0.2 ),
+    vec3(  0.0,  1.0,  -0.2 ),
+    vec3(  0.0,  0.9,  -0.2 ),
+    vec3( -0.3,  0.9,  -0.3 ),
+    vec3( -0.3,  1.0, -0.3 ),
+    vec3(  0.0,  1.0, -0.3 ),
+    vec3(  0.0,  0.9, -0.3 )
+];
 
 
 var testLine = [
@@ -151,10 +183,20 @@ window.onload = function init()
 
 
 
+var drawcounter = 0;
+
+
+function addFloor(magicNumber){
+    quad( 2+magicNumber, 3+magicNumber, 7+magicNumber, 6+magicNumber );
+    quad( 1+magicNumber, 0+magicNumber, 3+magicNumber, 2+magicNumber );
+    quad( 3+magicNumber, 0+magicNumber, 4+magicNumber, 7+magicNumber );
+    quad( 6+magicNumber, 5+magicNumber, 1+magicNumber, 2+magicNumber );
+    quad( 4+magicNumber, 5+magicNumber, 6+magicNumber, 7+magicNumber );
+    quad( 5+magicNumber, 4+magicNumber, 0+magicNumber, 1+magicNumber );
+}
+
 function colorCube()
 {
-
-    console.log("now");
 
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
@@ -175,31 +217,10 @@ function colorCube()
 
 }
 
+
+var colorCounter = 0;
 function quad(a, b, c, d) 
 {
-    var vertices = [
-        vec3( -0.3, -1.0,  0.3 ),
-        vec3( -0.3,  1.0,  0.3 ),
-        vec3(  0.3,  1.0,  0.3 ),
-        vec3(  0.3, -1.0,  0.3 ),
-        vec3( -0.3, -1.0, -0.3 ),
-        vec3( -0.3,  1.0, -0.3 ),
-        vec3(  0.3,  1.0, -0.3 ),
-        vec3(  0.3, -1.0, -0.3 ),
-
-
-
-        //blocks
-
-        vec3( -0.3,  0.9,  -0.2 ),
-        vec3( -0.3,  1.0,  -0.2 ),
-        vec3(  0.0,  1.0,  -0.2 ),
-        vec3(  0.0,  0.9,  -0.2 ),
-        vec3( -0.3,  0.9,  -0.3 ),
-        vec3( -0.3,  1.0, -0.3 ),
-        vec3(  0.0,  1.0, -0.3 ),
-        vec3(  0.0,  0.9, -0.3 )
-    ];
 
 
 
@@ -222,7 +243,6 @@ function quad(a, b, c, d)
     
     var indices = [ a, b, c, a, c, d ];
 
-    console.log(indices);
 
     for ( var i = 0; i < indices.length; ++i ) {
         points.push( vertices[indices[i]] );
@@ -230,18 +250,20 @@ function quad(a, b, c, d)
     
         // for solid colored faces use
         if(a > 7){
-            colors.push(vertexColors[a-8]);
+            counter += 1;
+            if(counter == 37){
+                drawValue += 8;
+                counter = 0;
+            }
+            colors.push(vertexColors[a-drawValue]);
         }
         else{
 
             colors.push(vertexColors[a]);
-        
         }
 
-        
     }
-
-    console.log(points)
+    
 
 
 }
@@ -261,9 +283,10 @@ function render()
 
     /*draw box*/
 
-    
-    
+
     var ctm = lookAt( vec3(1.2, 1.0, 2.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 1.0, 0.0) );
+
+
 
     ctm = mult(ctm, rotateX(spinX));
     ctm = mult(ctm, rotateY(spinY));
@@ -279,6 +302,8 @@ function render()
     gl.drawArrays( gl.TRIANGLES, 0, 36);
 
 
+
+
     
 
 
@@ -290,20 +315,36 @@ function render()
         yBlockTranslator = yBlockTranslator - 0.1;
         ctm = mult( ctm, translate( 0.0, yBlockTranslator, 0.0 ) );
         if(yBlockTranslator <= -2.0){
-            tester = true;
-            var ctemp = colors.slice(36,72);
-            var ptemp = points.slice(36,72);
-            console.log("ctemp", ctemp);
-            console.log("ptemp",ptemp);
+            var tempvertices = vertices.slice(8, 16);
+            console.log(tempvertices);
 
-
-            for(var i = 0; i<ptemp.length; i++){
-                points.push(ptemp[i]);
-                colors.push(ctemp[i]);
+            for(var i = 0; i<tempvertices; i++){
+                value = tempvertices[i];
+                value[1] -= 2;
+                vertices.push(value);
             }
 
-            console.log("points", points);
-            console.log("colors",colors);
+            console.log(vertices);
+            console.log("drawValue",drawValue);
+
+            addFloor(drawValue+16);
+
+
+
+
+
+            
+
+
+            /*for(var i = 0; i<ptemp.length; i++){
+                var point = ptemp[i];
+                point[1] -= 2;
+
+                points.push(point);
+                colors.push(ctemp[i]);
+            }*/
+
+
             yBlockTranslator = 0.0;
 
         }
@@ -317,16 +358,16 @@ function render()
 
         gl.drawArrays( gl.TRIANGLES, 36, 36);
     }
-    
-    if(tester){
-        
-        gl.drawArrays(gl.TRIANGLES, 72, 36 );
+
+
+    if(points.length > 64){
+        gl.drawArrays( gl.TRIANGLES, 64, 36);
     }
 
     ctm = mult( ctm, translate( 0.0, 0.1, 0.0 ) );
     gl.uniformMatrix4fv(thetaLoc, false, flatten(ctm));
 
-        gl.drawArrays( gl.LINES, 0, 36);
+
 
 /*
     gl.bindBuffer(gl.ARRAY_BUFFER, lineBuffer);
