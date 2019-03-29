@@ -8,7 +8,10 @@
 var canvas;
 var gl;
 
-var NumVertices  = 456;
+var NumVertices  = 216;
+
+
+
 
 var NumBlock = 24;
 
@@ -58,8 +61,8 @@ var blockTrans = [];
 
 
 var yBlockTranslator = 0.0;
-var zBlockTranslator = 0.0;
 var xBlockTranslator = 0.0;
+var zBlockTranslator = 0.0;
 
 
 //create Floor
@@ -246,7 +249,7 @@ window.onload = function init()
             case 87:
                 zBlockTranslator += 0.1;
                 break;
-         }      
+         }
      }  );  
 
     // Event listener for mousewheel
@@ -298,6 +301,7 @@ function render()
             zPos = 3;
             yBlockTranslator = 0.0;
         break;
+        
         }
     }
 
@@ -352,8 +356,6 @@ function render()
                 floor[zPos][yPos][i] = true;
                 blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
                 yPos = 10;
-                zPos = 6;
-                xPos = 6;
             }
             /*TODO*/
             yBlockTranslator = 0.0;
