@@ -272,9 +272,8 @@ window.onload = function init()
 
 function render()
 {
-    console.log("xPos",xPos);
-    console.log("yPos",yPos);
-    console.log("zPos",zPos);
+    collision();
+
 
 
     var tempY
@@ -338,34 +337,6 @@ function render()
 
 
 
-    /**
-     * TODO: collisions depending on the cobe 
-     */
-    //collisions;
-
-    //collision for front side
-    if(zBlockTranslator < -0.5){
-        zBlockTranslator = -0.5;
-        zPos = -2;
-    };
-
-    //collision for back side
-    if(zBlockTranslator > 0.0){
-        zBlockTranslator = 0.0;
-        zPos = 3;
-    };
-
-    //collision for left side
-    if(xBlockTranslator > 0.0){
-        xBlockTranslator = 0.0;
-        xPos = 3;
-    };
-
-    //collision for left side
-    if(xBlockTranslator < -0.3){
-        xBlockTranslator = -0.3;
-        xPos = 0;
-    };
 
     if(counter >= maxCounter){
         
@@ -422,5 +393,40 @@ function render()
 
 
     requestAnimFrame( render );
+}
+
+
+function collision(){
+
+    
+    /**
+     * TODO: collisions depending on the cobe 
+     */
+    //collisions;
+
+    //collision for front side
+    if(zBlockTranslator < -0.5){
+        zBlockTranslator = -0.5;
+        zPos = -2;
+    };
+
+    //collision for back side
+    if(zBlockTranslator > 0.0){
+        zBlockTranslator = 0.0;
+        zPos = 3;
+    };
+
+    //collision for left side
+    if(xBlockTranslator > 0.0){
+        xBlockTranslator = 0.0;
+        xPos = 3;
+    };
+
+    //collision for left side
+    if(xBlockTranslator < -0.3){
+        xBlockTranslator = -0.3;
+        xPos = 0;
+    };
+
 }
 
