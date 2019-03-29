@@ -8,6 +8,11 @@
 var canvas;
 var gl;
 
+var colorR = vec4(1.0, 0.0, 0.0, 0.5);
+
+
+
+
 var NumVertices  = 216;
 
 
@@ -21,8 +26,8 @@ var points = [];
 var colors = [];
 
 
-
-
+//falldown button "Space" click checker
+var fallDown = false;
 var vBuffer;
 var blockBuffer;
 var vPosition;
@@ -166,7 +171,6 @@ window.onload = function init()
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
     
-    gl.enable(gl.DEPTH_TEST);
     
     //
     //  Load shaders and initialize attribute buffers
@@ -184,6 +188,10 @@ window.onload = function init()
     
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+    gl.enable( gl.BLEND );
+    gl.blendFunc( gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA );
+
+    gl.enable(gl.DEPTH_TEST);
     
     addLines();
     NumVertices = lines.length;
@@ -209,6 +217,10 @@ window.onload = function init()
     var proj = perspective( 50.0, 1.0, 0.2, 100.0 );
     gl.uniformMatrix4fv(proLoc, false, flatten(proj));
     
+
+
+
+
     //event listeners for mouse
     canvas.addEventListener("mousedown", function(e){
         movement = true;
@@ -255,6 +267,10 @@ window.onload = function init()
                 zBlockTranslator += 0.1;
                 zPos +=1;
                 break;
+            case 32:
+                if(fallDown == false){
+                    fallDown = true;
+                }
          }
      }  );  
 
@@ -274,31 +290,70 @@ function render()
 {
     collision();
 
-
-
+    
+    
     var tempY
-
-    gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.disable( gl.DEPTH_TEST );
-
+    
+    gl.clear( gl.COLOR_BUFFER_BIT);
+    
     // Vinstra auga...
     var mv = lookAt( vec3(0.0-eyesep/2.0, 0.0, zDist),
-                      vec3(0.0, 0.0, zDist+2.0),
-                      vec3(0.0, 1.0, 0.0) );
+    vec3(0.0, 0.0, zDist+2.0),
+    vec3(0.0, 1.0, 0.0) );
     mv = mult( mv, mult( rotateX(spinX), rotateY(spinY) ) );
-
+    
     // Vinstri mynd er � rau�u...
-    gl.uniform4fv( colorLoc, vec4(1.0, 0.0, 0.0, 1.0) );
+    gl.uniform4fv( colorLoc, flatten(colorR));
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
     gl.drawArrays( gl.LINES, 0, NumVertices );
 
+    console.log(fallDown);
+
+    //check if falldown button is clicked
+    if(fallDown){
+        //debug
+        for(var i = yPos; i>=-10; i--){
+            if(yBlockTranslator <= -2.0){
+                console.log("break1");
+                //TODO boolean fyrir hvernig cubinn snýr
+                for(var j = xPos; j>xPos-3; j--){
+                    floor[zPos][i][j] = true;
+                    blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                }
+                break;
+
+            }
+            for(var j = xPos; j > xPos-3; j--){ 
+                if(floor[zPos][i-1][j] === true){
+                    
+                    blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                    for(var k = xPos; k > xPos-3; k--){
+                        floor[zPos][i][k] = true;
+                    }
+                    fallDown = false;
+                    break;
+                }
+            }
+            if(!fallDown){
+                break;
+            }
+            yBlockTranslator -= 0.1;
+        }
+        fallDown = false;
+        yPos = 10;
+        xPos = 3;
+        zPos = 3;
+        yBlockTranslator = 0.0;
+        xBlockTranslator = 0.0;
+        zBlockTranslator = 0.0;
+        counter = 0;
+    }
 
 
     /*TODO boolean breyta eftir því hvernig hann snýr*/
     
     for(var i = xPos; i>xPos-3; i--){
-        console.log(xPos);
-        if(floor[zPos][yPos-1][i] == true){
+        if(floor[zPos][yPos-1][i] === true){
             blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
             /*TODO*/
             for(var j = xPos; j >xPos-3; j-- ){
@@ -310,6 +365,7 @@ function render()
             yBlockTranslator = 0.0;
             xBlockTranslator = 0.0;
             zBlockTranslator = 0.0;
+            conter = 0;
             
         break;
         
@@ -319,7 +375,7 @@ function render()
 
     if(blockTrans.length != 0){
         for(var i = 0; i<blockTrans.length; i++){
-            gl.uniform4fv(colorLoc, vec4(0.0, 1.0, 0.0, 1.0));
+            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 0.5)));
             block = blockTrans[i];
             mv = mult(mv, translate(block[0], block[1], block[2]));
             gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
@@ -333,7 +389,7 @@ function render()
 
     
 
-    gl.uniform4fv(colorLoc, vec4(0.0, 0.0, 0.0, 1.0))
+    gl.uniform4fv(colorLoc, flatten(vec4(0.0, 0.0, 0.0, 1.0)))
 
 
 
@@ -360,7 +416,7 @@ function render()
             zBlockTranslator = 0.0;
             yBlockTranslator = 0.0;
             xBlockTranslator = 0.0;
-
+            counter = 0;
             /*TODO*/
 
 
@@ -380,8 +436,7 @@ function render()
         gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
         gl.drawArrays(gl.LINES, NumVertices, 24);
     }
-   /* gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-    gl.drawArrays(gl.LINES, NumVertices+NumBlock, totalFloor);*/
+
     
     // H�gra auga...
     mv = lookAt( vec3(0.0+eyesep/2.0, 0.0, zDist),

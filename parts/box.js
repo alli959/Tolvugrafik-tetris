@@ -103,6 +103,9 @@ window.onload = function init()
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
  
     gl.enable(gl.DEPTH_TEST);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+    gl.enable(gl.BLEND);
+    gl.disable(gl.DEPTH_TEST);
     
     colorCube()
     //
