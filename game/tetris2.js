@@ -61,6 +61,8 @@ var blockTrans = [];
 
 
 var yBlockTranslator = 0.0;
+var xBlockTranslator = 0.0;
+var zBlockTranslator = 0.0;
 
 
 //create Floor
@@ -270,10 +272,17 @@ function render()
     /*TODO boolean breyta eftir því hvernig hann snýr*/
     
     for(var i = xPos; i>0; i--){
-        if(floor[zPos][yPos][i] == true){
+        console.log(xPos);
+        if(floor[zPos][yPos-1][i] == true){
             console.log(yBlockTranslator);
             blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
+            /*TODO*/
+            for(var j = xPos; j >0; j-- ){
+                floor[zPos][yPos][j] = true;
+            }
             yPos = 10;
+            xPos = 3;
+            zPos = 3;
             yBlockTranslator = 0.0;
         break;
         
@@ -293,10 +302,13 @@ function render()
             
         }
     }
+
+
     
 
     gl.uniform4fv(colorLoc, vec4(0.0, 0.0, 0.0, 1.0))
     if(counter >= maxCounter){
+
         yPos -= 1;
         
         counter = 0;
@@ -305,9 +317,10 @@ function render()
             //TODO boolean fyrir hvernig cubinn snýr
             for(var i = xPos; i>0; i--){
                 floor[zPos][yPos][i] = true;
+                blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
                 yPos = 10;
             }
-            /*TODO*/blockTrans.push(vec3(0.0, -1.9, 0.0));
+            /*TODO*/
             yBlockTranslator = 0.0;
 
             /*TODO*/
@@ -325,7 +338,7 @@ function render()
 
     else{
         counter += 1;
-        mv = mult(mv, translate(0.0, yBlockTranslator, 0.0));
+        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
         gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
         gl.drawArrays(gl.LINES, NumVertices, 24);
     }
