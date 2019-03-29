@@ -8,7 +8,7 @@
 var canvas;
 var gl;
 
-var colorR = vec4(1.0, 0.0, 0.0, 0.5);
+var colorR = vec4(1.0, 0.0, 0.0, 1.0);
 
 
 
@@ -375,7 +375,7 @@ function render()
 
     if(blockTrans.length != 0){
         for(var i = 0; i<blockTrans.length; i++){
-            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 0.5)));
+            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 1.0)));
             block = blockTrans[i];
             mv = mult(mv, translate(block[0], block[1], block[2]));
             gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
