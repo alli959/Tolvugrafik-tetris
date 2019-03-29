@@ -8,10 +8,7 @@
 var canvas;
 var gl;
 
-var NumVertices  = 216;
-
-
-
+var NumVertices  = 456;
 
 var NumBlock = 24;
 
@@ -61,8 +58,8 @@ var blockTrans = [];
 
 
 var yBlockTranslator = 0.0;
-var xBlockTranslator = 0.0;
 var zBlockTranslator = 0.0;
+var xBlockTranslator = 0.0;
 
 
 //create Floor
@@ -96,6 +93,10 @@ function addLines(){
     vertMaker(-0.3, 0.3, -0.2, 0.2, -0.3, 0.3);
     vertMaker(-0.3, 0.3, -0.1, 0.1, -0.3, 0.3);
     vertMaker(-0.3, 0.3,  0.0, 0.0, -0.3, 0.3);
+    vertMaker(-0.15, 0.15,  1.0, 1.0, -0.3, 0.3);
+    vertMaker(-0.0, 0.0,  1.0, 1.0, -0.3, 0.3);
+    vertMaker(-0.15, 0.15,  0.9, 0.9, -0.3, 0.3);
+    vertMaker(-0.0, 0.0,  0.9, 0.9, -0.3, 0.3);
     
 }
 // the 8 vertices of the cube
@@ -233,7 +234,19 @@ window.onload = function init()
             case 40:	// ni�ur �r
                 zDist -= 0.1;
                 break;
-         }
+            case 68: 
+                xBlockTranslator -= 0.3;
+                break;
+            case 65:
+                xBlockTranslator += 0.3; 
+                break;
+            case 83:
+                zBlockTranslator -= 0.1;
+                break;
+            case 87:
+                zBlockTranslator += 0.1;
+                break;
+         }      
      }  );  
 
     // Event listener for mousewheel
@@ -285,7 +298,6 @@ function render()
             zPos = 3;
             yBlockTranslator = 0.0;
         break;
-        
         }
     }
 
@@ -307,6 +319,27 @@ function render()
     
 
     gl.uniform4fv(colorLoc, vec4(0.0, 0.0, 0.0, 1.0))
+
+    //collision for front side
+    if(zBlockTranslator < 0.0){
+        zBlockTranslator = 0.0
+    };
+
+    //collision for back side
+    if(zBlockTranslator > 0.5){
+        zBlockTranslator = 0.5
+    };
+
+    //collision for left side
+    if(xBlockTranslator > 0.0){
+        xBlockTranslator = 0.0
+    };
+
+    //collision for left side
+    if(xBlockTranslator < -0.3){
+        xBlockTranslator = -0.3
+    };
+
     if(counter >= maxCounter){
 
         yPos -= 1;
@@ -319,6 +352,8 @@ function render()
                 floor[zPos][yPos][i] = true;
                 blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
                 yPos = 10;
+                zPos = 6;
+                xPos = 6;
             }
             /*TODO*/
             yBlockTranslator = 0.0;
