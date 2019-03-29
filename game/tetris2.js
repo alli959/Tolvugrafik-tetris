@@ -77,12 +77,9 @@ for(var z = 3; z >= -3; z-=1){
     }
 }
 
-console.log(floor);
-
-console.log(floor[0][-1][2]);
 
 
-
+//init function for lines
 
 function addLines(){
     vertMaker(-0.3, 0.3, -1.0, 1.0, -0.3, 0.3);
@@ -108,6 +105,9 @@ var v = [
 
 ];
 
+
+//function that creates vertices and pushes it to lines
+
 function vertMaker(lowX, highX, lowY, highY, lowZ, highZ){
 
     vert = [
@@ -131,6 +131,8 @@ function vertMaker(lowX, highX, lowY, highY, lowZ, highZ){
 
 
 
+
+//
 
 function magic(magicNumber){
     var tempLines = [
@@ -185,7 +187,7 @@ window.onload = function init()
     
     addLines();
     NumVertices = lines.length;
-    vertMaker(0.0, 0.3, 0.9, 1.0, -0.2, -0.3);
+    vertMaker(0.0, 0.3, 0.9, 1.0, 0.3, 0.2);
     
     vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
@@ -238,16 +240,20 @@ window.onload = function init()
                 zDist -= 0.1;
                 break;
             case 68: 
-                xBlockTranslator -= 0.3;
+                xBlockTranslator -= 0.1;
+                xPos -= 1;
                 break;
             case 65:
-                xBlockTranslator += 0.3; 
+                xBlockTranslator += 0.1;
+                xPos += 1; 
                 break;
             case 83:
                 zBlockTranslator -= 0.1;
+                zPos -=1;
                 break;
             case 87:
                 zBlockTranslator += 0.1;
+                zPos +=1;
                 break;
          }
      }  );  
@@ -266,6 +272,10 @@ window.onload = function init()
 
 function render()
 {
+    console.log("xPos",xPos);
+    console.log("yPos",yPos);
+    console.log("zPos",zPos);
+
 
     var tempY
 
@@ -279,7 +289,7 @@ function render()
     mv = mult( mv, mult( rotateX(spinX), rotateY(spinY) ) );
 
     // Vinstri mynd er � rau�u...
-    gl.uniform4fv( colorLoc, vec4(1.0, 0.0, 0.0, 0.3) );
+    gl.uniform4fv( colorLoc, vec4(1.0, 0.0, 0.0, 1.0) );
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
     gl.drawArrays( gl.LINES, 0, NumVertices );
 
@@ -287,19 +297,21 @@ function render()
 
     /*TODO boolean breyta eftir því hvernig hann snýr*/
     
-    for(var i = xPos; i>0; i--){
+    for(var i = xPos; i>xPos-3; i--){
         console.log(xPos);
         if(floor[zPos][yPos-1][i] == true){
-            console.log(yBlockTranslator);
-            blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
+            blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
             /*TODO*/
-            for(var j = xPos; j >0; j-- ){
+            for(var j = xPos; j >xPos-3; j-- ){
                 floor[zPos][yPos][j] = true;
             }
             yPos = 10;
             xPos = 3;
             zPos = 3;
             yBlockTranslator = 0.0;
+            xBlockTranslator = 0.0;
+            zBlockTranslator = 0.0;
+            
         break;
         
         }
@@ -324,27 +336,39 @@ function render()
 
     gl.uniform4fv(colorLoc, vec4(0.0, 0.0, 0.0, 1.0))
 
+
+
+    /**
+     * TODO: collisions depending on the cobe 
+     */
+    //collisions;
+
     //collision for front side
-    if(zBlockTranslator < 0.0){
-        zBlockTranslator = 0.0
+    if(zBlockTranslator < -0.5){
+        zBlockTranslator = -0.5;
+        zPos = -2;
     };
 
     //collision for back side
-    if(zBlockTranslator > 0.5){
-        zBlockTranslator = 0.5
+    if(zBlockTranslator > 0.0){
+        zBlockTranslator = 0.0;
+        zPos = 3;
     };
 
     //collision for left side
     if(xBlockTranslator > 0.0){
-        xBlockTranslator = 0.0
+        xBlockTranslator = 0.0;
+        xPos = 3;
     };
 
     //collision for left side
     if(xBlockTranslator < -0.3){
-        xBlockTranslator = -0.3
+        xBlockTranslator = -0.3;
+        xPos = 0;
     };
 
     if(counter >= maxCounter){
+        
 
         yPos -= 1;
         
@@ -352,20 +376,26 @@ function render()
         yBlockTranslator = yBlockTranslator - 0.1;
         if(yBlockTranslator <= -2.0){
             //TODO boolean fyrir hvernig cubinn snýr
-            for(var i = xPos; i>0; i--){
+            for(var i = xPos; i>xPos-3; i--){
                 floor[zPos][yPos][i] = true;
-                blockTrans.push(vec3(0.0, yBlockTranslator+0.1, 0.0));
+                blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
                 yPos = 10;
             }
+
+            yPos = 10;
+            xPos = 3;
+            zPos = 3;
             /*TODO*/
+            zBlockTranslator = 0.0;
             yBlockTranslator = 0.0;
+            xBlockTranslator = 0.0;
 
             /*TODO*/
 
 
 
         }
-        mv = mult(mv, translate(0.0, yBlockTranslator, 0.0));
+        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
         gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
         gl.drawArrays(gl.LINES, NumVertices, 24);
 
