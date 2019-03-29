@@ -87,6 +87,8 @@ for(var z = 3; z >= -3; z-=1){
 //init function for lines
 
 function addLines(){
+
+// Outer horizontal grid    
     vertMaker(-0.3, 0.3, -1.0, 1.0, -0.3, 0.3);
     vertMaker(-0.3, 0.3, -0.9, 0.9, -0.3, 0.3);
     vertMaker(-0.3, 0.3, -0.8, 0.8, -0.3, 0.3);
@@ -98,11 +100,40 @@ function addLines(){
     vertMaker(-0.3, 0.3, -0.2, 0.2, -0.3, 0.3);
     vertMaker(-0.3, 0.3, -0.1, 0.1, -0.3, 0.3);
     vertMaker(-0.3, 0.3,  0.0, 0.0, -0.3, 0.3);
-    vertMaker(-0.15, 0.15,  1.0, 1.0, -0.3, 0.3);
+
+// Outer vertical grid L   
+    vertMaker(-0.2, 0.2, -1.0, 1.0, -0.3, 0.3);
+    vertMaker(-0.1, 0.1, -1.0, 1.0, -0.3, 0.3);
+    vertMaker(-0.0, 0.0, -1.0, 1.0, -0.3, 0.3);
+
+// Outer vertical grid R   
+    vertMaker(-0.3, 0.3, -1.0, 1.0, -0.2, 0.2);
+    vertMaker(-0.3, 0.3, -1.0, 1.0, -0.1, 0.1);
+    vertMaker(-0.3, 0.3, -1.0, 1.0, -0.0, 0.0);    
+
+// Inner diagonal grid L
+    vertMaker(-0.2, 0.2,  1.0, 1.0, -0.3, 0.3);
+    vertMaker(-0.1, 0.1,  1.0, 1.0, -0.3, 0.3);
     vertMaker(-0.0, 0.0,  1.0, 1.0, -0.3, 0.3);
-    vertMaker(-0.15, 0.15,  0.9, 0.9, -0.3, 0.3);
-    vertMaker(-0.0, 0.0,  0.9, 0.9, -0.3, 0.3);
-    
+
+    vertMaker(-0.2, 0.2,  -1.0, -1.0, -0.3, 0.3);
+    vertMaker(-0.1, 0.1,  -1.0, -1.0, -0.3, 0.3);
+    vertMaker(-0.0, 0.0,  -1.0, -1.0, -0.3, 0.3);
+
+// Inner diagonal grid R
+    vertMaker(-0.3, 0.3,  1.0, 1.0, -0.2, -0.2);
+    vertMaker(-0.3, 0.3,  1.0, 1.0, -0.1, -0.1);
+    vertMaker(-0.3, 0.3,  1.0, 1.0, -0.0, -0.0);
+    vertMaker(-0.3, 0.3,  1.0, 1.0, 0.1, 0.1);
+    vertMaker(-0.3, 0.3,  1.0, 1.0, 0.2, 0.2);
+    vertMaker(-0.3, 0.3,  1.0, 1.0, 0.2, 0.2);
+
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, -0.2, -0.2);
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, -0.1, -0.1);
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, -0.0, -0.0);
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, 0.1, 0.1);
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, 0.2, 0.2);
+    vertMaker(-0.3, 0.3,  -1.0, -1.0, 0.2, 0.2);
 }
 // the 8 vertices of the cube
 var v = [
@@ -133,9 +164,6 @@ function vertMaker(lowX, highX, lowY, highY, lowZ, highZ){
     magic(v.length-8);
 
 }
-
-
-
 
 //
 
