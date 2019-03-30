@@ -8,7 +8,7 @@
 var canvas;
 var gl;
 
-var colorR = vec4(1.0, 0.0, 0.0, 0.5);
+var colorR = vec4(1.0, 0.0, 0.0, 0.3);
 
 
 
@@ -59,6 +59,10 @@ var xPos = 3;
 var yPos = 10;
 var zPos = 3;
 
+var xPosMax = 3;
+var yPosMax = 10;
+var zPosMax = 3;
+
 var counter = 0;
 var maxCounter = 20;
 
@@ -73,6 +77,32 @@ var isUp = false;
 var isDown = true;
 var isLeft = true;
 var isRight = false;
+
+
+var changer = {
+    "10": 0.0,
+    "9": -0.1,
+    "8": -0.2,
+    "7": -0.3,
+    "6": -0.4,
+    "5": -0.5,
+    "4": -0.6,
+    "3": -0.7,
+    "2": -0.8,
+    "1": -0.9,
+    "0": -1.0,
+    "-1": -1.1,
+    "-2": -1.2,
+    "-3": -1.3,
+    "-4": -1.4,
+    "-5": -1.5,
+    "-6": -1.6,
+    "-7": -1.7,
+    "-8": -1.8,
+    "-9": -1.9,
+    "-10":-2.0,
+
+}
 
 
 //create Floor
@@ -185,6 +215,76 @@ function magic(magicNumber){
         lines.push(tempLines[i]);
     }
 }
+
+
+
+//check if there is a height y that has a box in all positions
+function checkPoints(){
+    for(var y=-10; y<10; y++){
+        var value = true;
+        for(var z = -2; z<=3; z++){
+            if(value === false){
+
+                break;
+            }
+            for(var x = -2; x<=3; x++){
+                if(floor[z][y][x] === false){
+                    value = false;
+                    break;
+                }
+            }
+        }
+        if(value === true){
+            console.log("true");
+            for(var z2 = -2; z2<=3; z2++){
+                for(var x2 = -2; x2<=3; x2++){
+                    floor[z2][y][x2] = false;
+                    }
+                }
+                shiftFloor(y);
+                shiftDown(y+1);
+            }
+        }
+}
+
+
+function shiftFloor(yPosition){
+    for(var i = 0; i<blockTrans.length; i++){
+        var value = blockTrans[i];
+        console.log("changer",changer[yPosition]+0.1);
+        console.log("value", Math.floor(value[1]* 100) / 100 +0.01);
+        if(changer[yPosition] +0.1 === Math.floor(value[1]* 100) / 100 +0.01){
+            console.log("after",blockTrans);
+            blockTrans.splice(i,1);
+            console.log("before",blockTrans);
+
+        }
+    }
+    
+}
+
+
+//move every boolean of block visability down y -1
+
+
+function shiftDown(startY){
+    for(var y = startY; y<10; y++){
+
+        for(var z = -2; z<=3; z++){
+            
+            for(var x = -2; x<=3; x++){
+                if(floor[z][y][x] === true){
+                    if(floor[z][y][x] === false){
+                        floor[z][y][x] = false;
+                        floor[z][y-1][x] = true;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 
 var lines = [];
@@ -329,6 +429,9 @@ window.onload = function init()
 function render()
 {
     collision();
+
+    checkPoints();
+
     
     var tempY
     
@@ -344,7 +447,6 @@ function render()
     gl.uniform4fv( colorLoc, flatten(colorR));
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
     gl.drawArrays( gl.LINES, 0, NumVertices );
-
 
     //check if falldown button is clicked
     if(fallDown){
@@ -411,7 +513,7 @@ function render()
 
     if(blockTrans.length != 0){
         for(var i = 0; i<blockTrans.length; i++){
-            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 0.5)));
+            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 1.0)));
             block = blockTrans[i];
             mv = mult(mv, translate(block[0], block[1], block[2]));
             gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
