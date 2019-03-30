@@ -69,6 +69,11 @@ var yBlockTranslator = 0.0;
 var xBlockTranslator = 0.0;
 var zBlockTranslator = 0.0;
 
+var isUp = false;
+var isDown = true;
+var isLeft = true;
+var isRight = false;
+
 
 //create Floor
 for(var z = 3; z >= -3; z-=1){
@@ -176,7 +181,6 @@ function magic(magicNumber){
         v[0+magicNumber], v[4+magicNumber], v[1+magicNumber], v[5+magicNumber],
          v[2+magicNumber], v[6+magicNumber], v[3+magicNumber], v[7+magicNumber],
     ];
-    console.log(tempLines);
     for(var i = 0; i<24; i++){
         lines.push(tempLines[i]);
     }
@@ -223,15 +227,13 @@ window.onload = function init()
     
     addLines();
     NumVertices = lines.length;
+
     vertMaker(0.0, 0.3, 0.9, 1.0, 0.3, 0.2);
     
     vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(lines), gl.STATIC_DRAW );
     
-    
-
-
 
     vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 3, gl.FLOAT, false, 0, 0 );
@@ -273,27 +275,37 @@ window.onload = function init()
     // Event listener for keyboard
      window.addEventListener("keydown", function(e){
          switch( e.keyCode ) {
-            case 38:	// upp �r
-                zDist += 0.1;
-                break;
-            case 40:	// ni�ur �r
-                zDist -= 0.1;
-                break;
-            case 68: 
+            case 39: 
                 xBlockTranslator -= 0.1;
                 xPos -= 1;
                 break;
-            case 65:
+            case 37:
                 xBlockTranslator += 0.1;
                 xPos += 1; 
                 break;
-            case 83:
+            case 40:
                 zBlockTranslator -= 0.1;
                 zPos -=1;
                 break;
-            case 87:
+            case 38:
                 zBlockTranslator += 0.1;
                 zPos +=1;
+                break;
+            case 87:
+                isUp = true;
+                isDown = false;
+                break;
+            case 83:
+                isUp = false;
+                isDown = true;
+                break;
+            case 65:
+                isLeft = true;
+                isRight = false;
+                break;
+            case 68:
+                isLeft = false;
+                isRight = true;
                 break;
             case 32:
                 if(fallDown == false){
@@ -317,8 +329,6 @@ window.onload = function init()
 function render()
 {
     collision();
-
-    
     
     var tempY
     
@@ -335,14 +345,12 @@ function render()
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
     gl.drawArrays( gl.LINES, 0, NumVertices );
 
-    console.log(fallDown);
 
     //check if falldown button is clicked
     if(fallDown){
         //debug
         for(var i = yPos; i>=-10; i--){
             if(yBlockTranslator <= -2.0){
-                console.log("break1");
                 //TODO boolean fyrir hvernig cubinn snýr
                 for(var j = xPos; j>xPos-3; j--){
                     floor[zPos][i][j] = true;
@@ -409,8 +417,6 @@ function render()
             gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
             gl.drawArrays(gl.LINES, NumVertices, 24);
             mv = mult(mv, translate(-block[0], -block[1], -block[2]));
-
-            
         }
     }
 
@@ -460,11 +466,40 @@ function render()
 
     else{
         counter += 1;
-        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
-        gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-        gl.drawArrays(gl.LINES, NumVertices, 24);
-    }
+        
+        if(isLeft){ 
+            isRight = false;
+            mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+        }
 
+        if(isRight){
+            isLeft = false;
+            mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
+            mv = mult(mv, mult( rotateX(0), rotateY(90) ) );
+            mv = mult(mv, translate(0, 0, -0.3));
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+        }
+        if(isDown){
+            isUp = false;
+            mv = mult(mv, translate(xBlockTranslator, 0, zBlockTranslator));
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+        }
+
+        if(isUp){
+            isDown = false;
+            mv = mult(mv, translate(xBlockTranslator, 0, zBlockTranslator));
+            mv = mult(mv, mult( rotateX(90), rotateY(90) ) );
+            mv = mult(mv, translate(1, -1.2, -0.3));
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+        }
+}
+
+console.log(isUp);
     
     // H�gra auga...
     mv = lookAt( vec3(0.0+eyesep/2.0, 0.0, zDist),
@@ -478,12 +513,9 @@ function render()
     requestAnimFrame( render );
 }
 
-
 function collision(){
-
-    
     /**
-     * TODO: collisions depending on the cobe 
+     * TODO: collisions depending on the cube 
      */
     //collisions;
 
