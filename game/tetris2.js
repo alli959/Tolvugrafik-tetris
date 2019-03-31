@@ -15,6 +15,7 @@ var colorR = vec4(1.0, 0.0, 0.0, 0.3);
 
 var NumVertices  = 216;
 
+var mv;
 
 
 
@@ -67,6 +68,13 @@ var counter = 0;
 var maxCounter = 20;
 
 var blockTrans = [];
+var rot = [];
+var rotTrans = [];
+
+var temprot = vec3(0.0, 0.0, 0.0);
+var temptrans = vec3(0.0, 0.0, 0.0);
+
+
 
 
 var yBlockTranslator = 0.0;
@@ -177,6 +185,39 @@ var v = [
 ];
 
 
+function rotation(){
+    if(isLeft){
+        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
+        temprot = vec3(0.0, 0.0, 0.0);
+        temptrans = vec3(0.0, 0.0, 0.0);
+        gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+        gl.drawArrays(gl.LINES, NumVertices, 24);
+    }
+
+    if(isRight){
+            mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
+            mv = mult(mv, mult( rotateX(0), rotateY(90), rotateZ(0) ) );
+            mv = mult(mv, translate(0, 0, -0.5));
+            temprot = vec3(0.0, 90, 0.0);
+            temptrans = vec3(0, 0, -0.5);
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+        
+    }
+    
+
+    if(isUp){
+        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
+        mv = mult(mv, mult( rotateX(90), rotateY(90) , rotateZ(0) ) );
+        mv = mult(mv, translate(0.7, -1.2, -0.5));
+        temprot = vec3(90, 90, 0);
+        temptrans = vec3(0.7, -1.2, -0.5 );
+        gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+        gl.drawArrays(gl.LINES, NumVertices, 24);
+    }
+}
+
+
 //function that creates vertices and pushes it to lines
 
 function vertMaker(lowX, highX, lowY, highY, lowZ, highZ){
@@ -235,7 +276,6 @@ function checkPoints(){
             }
         }
         if(value === true){
-            console.log("true");
             for(var z2 = -2; z2<=3; z2++){
                 for(var x2 = -2; x2<=3; x2++){
                     floor[z2][y][x2] = false;
@@ -251,13 +291,8 @@ function checkPoints(){
 function shiftFloor(yPosition){
     for(var i = 0; i<blockTrans.length; i++){
         var value = blockTrans[i];
-        console.log("changer",changer[yPosition]+0.1);
-        console.log("value", Math.floor(value[1]* 100) / 100 +0.01);
         if(changer[yPosition] +0.1 === Math.floor(value[1]* 100) / 100 +0.01){
-            console.log("after",blockTrans);
             blockTrans.splice(i,1);
-            console.log("before",blockTrans);
-
         }
     }
     
@@ -375,39 +410,133 @@ window.onload = function init()
     // Event listener for keyboard
      window.addEventListener("keydown", function(e){
          switch( e.keyCode ) {
-            case 39: 
+            case 39:
+                e.preventDefault(); 
                 xBlockTranslator -= 0.1;
                 xPos -= 1;
                 break;
             case 37:
+                e.preventDefault(); 
                 xBlockTranslator += 0.1;
                 xPos += 1; 
                 break;
             case 40:
+                e.preventDefault(); 
                 zBlockTranslator -= 0.1;
                 zPos -=1;
                 break;
             case 38:
+                e.preventDefault(); 
                 zBlockTranslator += 0.1;
                 zPos +=1;
                 break;
             case 87:
-                isUp = true;
-                isDown = false;
+                e.preventDefault();
+                if(isUp){
+                    break;
+                }
+                if(isLeft){
+
+                    isUp = true;
+                    isDown = false;
+                    isLeft = false;
+                    isRight = false;
+                    yPos += 2;
+                    yBlockTranslator += 0.2;
+                    xPos -= 2;
+                    xBlockTranslator -= 0.2;
+                    break;
+                }
+                else if(isRight){
+                    isUp = true;
+                    isDown = false;
+                    isLeft = false;
+                    isRight = false;
+                    yPos += 2;
+                    yBlockTranslator += 0.2;
+                }
                 break;
             case 83:
-                isUp = false;
-                isDown = true;
-                break;
+                e.preventDefault();
+                if(isLeft){
+                    break;
+                }
+                if(isUp){
+                    isDown = true;
+                    isUp = false;
+                    isRight = false;
+                    isLeft = true;
+                    xPos += 2;
+                    xBlockTranslator += 0.2;
+                    yPos -= 2;
+                    yBlockTranslator -= 0.2;
+
+                    break;
+                }
+                else if(isRight){
+                    isRight = false;
+                    isLeft = true;
+                    isDown = true;
+                    isUp = false;
+                    xPos += 2;
+                    xBlockTranslator += 0.2;
+                }
+
+
+
             case 65:
-                isLeft = true;
-                isRight = false;
-                break;
+                e.preventDefault();
+                if(isLeft){
+                    break;
+                }
+                if(isUp){
+                    isLeft = true;
+                    isRight = false;
+                    isUp = false;
+                    isDown = true;
+                    yPos -= 2;
+                    xPos += 2;
+                    xBlockTranslator += 0.2;
+                    yBlockTranslator -= 0.2;
+                    break;
+                }
+                else{
+                    isLeft = true;
+                    isRight = false;
+                    isUp = false;
+                    isDown = true;
+                    xPos += 2;
+                    xBlockTranslator += 0.2;
+                    break;
+                    
+                }
             case 68:
-                isLeft = false;
-                isRight = true;
-                break;
+                e.preventDefault();
+                if(isRight){
+                    break;
+                }
+
+                if(isDown){
+
+                    isRight = true;
+                    isLeft = false;
+                    isDown = true;
+                    isUp = false;
+                    xPos -= 2;
+                    xBlockTranslator -= 0.2;
+                    break;
+                }
+                else{
+                    isRight = true;
+                    isLeft = false;
+                    isDown = true;
+                    isUp = false;
+                    yPos -=2;
+                    yBlockTranslator -= 0.2;
+                    break;
+                }
             case 32:
+                e.preventDefault();
                 if(fallDown == false){
                     fallDown = true;
                 }
@@ -438,15 +567,30 @@ function render()
     gl.clear( gl.COLOR_BUFFER_BIT);
     
     // Vinstra auga...
-    var mv = lookAt( vec3(0.0-eyesep/2.0, 0.0, zDist),
+    mv = lookAt( vec3(0.0-eyesep/2.0, 0.0, zDist),
     vec3(0.0, 0.0, zDist+2.0),
     vec3(0.0, 1.0, 0.0) );
-    mv = mult( mv, mult( rotateX(spinX), rotateY(spinY) ) );
+    mv = mult( mv, mult( rotateX(spinX), rotateY(spinY), rotateZ(0) ) );
     
     // Vinstri mynd er � rau�u...
     gl.uniform4fv( colorLoc, flatten(colorR));
     gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
     gl.drawArrays( gl.LINES, 0, NumVertices );
+
+
+    if(blockTrans.length != 0){
+        for(var i = 0; i<blockTrans.length; i++){
+            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 1.0)));
+            block = blockTrans[i];
+            mv = mult(mv, translate(block[0], block[1], block[2]));
+            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
+            gl.drawArrays(gl.LINES, NumVertices, 24);
+            mv = mult(mv, translate(-block[0], -block[1], -block[2]));
+
+
+           
+        }
+    }
 
     //check if falldown button is clicked
     if(fallDown){
@@ -456,7 +600,6 @@ function render()
                 //TODO boolean fyrir hvernig cubinn snýr
                 for(var j = xPos; j>xPos-3; j--){
                     floor[zPos][i][j] = true;
-                    blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
                 }
                 break;
 
@@ -489,13 +632,69 @@ function render()
 
 
     /*TODO boolean breyta eftir því hvernig hann snýr*/
+    if(isLeft){
+
+        for(var i = xPos; i>xPos-3; i--){
+            if(floor[zPos][yPos-1][i] === true){
+                blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                rot.push(temprot);
+                rotTrans.push(temptrans);
+                /*TODO*/
+                for(var j = xPos; j >xPos-3; j-- ){
+                    floor[zPos][yPos][j] = true;
+                }
+                temprot = vec3(0,0,0);
+                temptrans = vec3(0,0,0);
+                yPos = 10;
+                xPos = 3;
+                zPos = 3;
+                yBlockTranslator = 0.0;
+                xBlockTranslator = 0.0;
+                zBlockTranslator = 0.0;
+                counter = 0;
+                
+                break;
+                
+            }
+        }
+    }
     
-    for(var i = xPos; i>xPos-3; i--){
-        if(floor[zPos][yPos-1][i] === true){
+    else if(isRight){
+        for(var i = zPos; i>zPos-3; i--){
+            if(floor[i][yPos-1][xPos] === true){
+                blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                rot.push(temprot);
+                rotTrans.push(temptrans);
+                /*TODO*/
+                for(var j = zPos; j >zPos-3; j-- ){
+                    floor[j][yPos][xPos] = true;
+                }
+                temprot = vec3(0,0,0);
+                temptrans = vec3(0,0,0);
+                yPos = 10;
+                xPos = 3;
+                zPos = 3;
+                yBlockTranslator = 0.0;
+                xBlockTranslator = 0.0;
+                zBlockTranslator = 0.0;
+                counter = 0;
+                
+                break;
+                
+            }
+        }
+    }
+
+    else if(isUp){
+        if(floor[zPos][yPos-3][xPos] === true){
             blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+            rot.push(temprot);
+            rotTrans.push(temptrans);
+            temprot = vec3(0,0,0);
+            temptrans = vec3(0,0,0);
             /*TODO*/
-            for(var j = xPos; j >xPos-3; j-- ){
-                floor[zPos][yPos][j] = true;
+            for(var j = yPos; j >yPos-3; j-- ){
+                floor[zPos][j][xPos] = true;
             }
             yPos = 10;
             xPos = 3;
@@ -503,24 +702,14 @@ function render()
             yBlockTranslator = 0.0;
             xBlockTranslator = 0.0;
             zBlockTranslator = 0.0;
-            conter = 0;
-            
-        break;
+            counter = 0;
+                        
+        }
+    }
+    
         
-        }
-    }
 
 
-    if(blockTrans.length != 0){
-        for(var i = 0; i<blockTrans.length; i++){
-            gl.uniform4fv(colorLoc, flatten(vec4(0.0, 1.0, 0.0, 1.0)));
-            block = blockTrans[i];
-            mv = mult(mv, translate(block[0], block[1], block[2]));
-            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-            gl.drawArrays(gl.LINES, NumVertices, 24);
-            mv = mult(mv, translate(-block[0], -block[1], -block[2]));
-        }
-    }
 
 
     
@@ -528,23 +717,56 @@ function render()
     gl.uniform4fv(colorLoc, flatten(vec4(0.0, 0.0, 0.0, 1.0)))
 
 
-
-
     if(counter >= maxCounter){
         
 
         yPos -= 1;
         
-        counter = 0;
         yBlockTranslator = yBlockTranslator - 0.1;
-        if(yBlockTranslator <= -2.0){
-            //TODO boolean fyrir hvernig cubinn snýr
+
+        counter = 0;
+        if(isUp){
+            if(yBlockTranslator - 0.2 <= -2.0){
+                for(var i = yPos; i>yPos-3; i--){
+                    floor[zPos][i][xPos] = true;
+                    blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                    rot.push(temprot);
+                    rotTrans.push(temptrans);
+            
+                    yPos = 10;
+                }
+                console.log("here");
+                temprot = vec3(0,0,0);
+                temptrans = vec3(0,0,0);
+                yPos = 10;
+                xPos = 3;
+                zPos = 3;
+                /*TODO*/
+                zBlockTranslator = 0.0;
+                yBlockTranslator = 0.0;
+                xBlockTranslator = 0.0;
+                counter = 0;
+                /*TODO*/
+            
+
+            }
+        }
+
+        else if(isLeft){
+            if(yBlockTranslator <= -2.0){
+
+                //TODO boolean fyrir hvernig cubinn snýr
             for(var i = xPos; i>xPos-3; i--){
                 floor[zPos][yPos][i] = true;
                 blockTrans.push(vec3(xBlockTranslator, yBlockTranslator+0.1, zBlockTranslator));
+                rot.push(temprot);
+                rotTrans.push(temptrans);
                 yPos = 10;
             }
-
+            
+            console.log("here")
+            temprot = vec3(0,0,0);
+            temptrans = vec3(0,0,0);
             yPos = 10;
             xPos = 3;
             zPos = 3;
@@ -554,13 +776,11 @@ function render()
             xBlockTranslator = 0.0;
             counter = 0;
             /*TODO*/
-
+            }
 
 
         }
-        mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
-        gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-        gl.drawArrays(gl.LINES, NumVertices, 24);
+        rotation();
 
 
     
@@ -568,40 +788,10 @@ function render()
 
     else{
         counter += 1;
-        
-        if(isLeft){ 
-            isRight = false;
-            mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
-            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-            gl.drawArrays(gl.LINES, NumVertices, 24);
-        }
-
-        if(isRight){
-            isLeft = false;
-            mv = mult(mv, translate(xBlockTranslator, yBlockTranslator, zBlockTranslator));
-            mv = mult(mv, mult( rotateX(0), rotateY(90) ) );
-            mv = mult(mv, translate(0, 0, -0.3));
-            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-            gl.drawArrays(gl.LINES, NumVertices, 24);
-        }
-        if(isDown){
-            isUp = false;
-            mv = mult(mv, translate(xBlockTranslator, 0, zBlockTranslator));
-            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-            gl.drawArrays(gl.LINES, NumVertices, 24);
-        }
-
-        if(isUp){
-            isDown = false;
-            mv = mult(mv, translate(xBlockTranslator, 0, zBlockTranslator));
-            mv = mult(mv, mult( rotateX(90), rotateY(90) ) );
-            mv = mult(mv, translate(1, -1.2, -0.3));
-            gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
-            gl.drawArrays(gl.LINES, NumVertices, 24);
-        }
+        rotation();
+       
 }
 
-console.log(isUp);
     
     // H�gra auga...
     mv = lookAt( vec3(0.0+eyesep/2.0, 0.0, zDist),
@@ -622,6 +812,8 @@ function collision(){
     //collisions;
 
     //collision for front side
+
+
     if(zBlockTranslator < -0.5){
         zBlockTranslator = -0.5;
         zPos = -2;
